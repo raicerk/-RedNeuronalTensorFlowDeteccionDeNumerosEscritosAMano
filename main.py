@@ -1,8 +1,8 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
-
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 dataset, metadata = tfds.load('mnist', as_supervised=True, with_info=True)
 train_dataset, test_dataset = dataset['train'], dataset['test']
@@ -57,12 +57,62 @@ test_loss, test_accuracy = model.evaluate(
 
 print("Resultado en las pruebas: ", test_accuracy)
 
-for datos_prueba, etiquetas_prueba in test_dataset.take(1):
-  datos_prueba = datos_prueba.numpy()
-  etiquetas_prueba = etiquetas_prueba.numpy()
-  predicciones = model.predict(datos_prueba)
+for test_images, test_labels in test_dataset.take(1):
+	test_images = test_images.numpy()
+	test_labels = test_labels.numpy()
+	predictions = model.predict(test_images)
 
-numero = datos_prueba[2]
-numero = np.array([numero])
-prediccion = model.predict(numero)
+number = test_images[2]
+number = np.array([number])
+prediccion = model.predict(number)
 print("Predicción: " + class_names[np.argmax(prediccion[0])])
+
+#Visor de la imagen a evaluar
+plt.figure(figsize=(2*2*1, 2*1))
+plt.grid(False)
+plt.xticks([])
+plt.yticks([])
+plt.imshow(test_images[2], cmap=plt.cm.binary)
+plt.show()
+
+#Visor de datos de los entrenamientos
+def plot_image(i, predictions_array, true_labels, images):
+	predictions_array, true_label, img = predictions_array[i], true_labels[i], images[i]
+	plt.grid(False)
+	plt.xticks([])
+	plt.yticks([])
+
+	plt.imshow(img[...,0], cmap=plt.cm.binary)
+
+	predicted_label = np.argmax(predictions_array)
+	if predicted_label == true_label:
+		color = 'blue'
+	else:
+		color = 'red'
+
+	plt.xlabel("Prediccion: {}".format(class_names[predicted_label]), color=color)
+
+def plot_value_array(i, predictions_array, true_label):
+	predictions_array, true_label = predictions_array[i], true_label[i]
+	plt.grid(False)
+	plt.xticks([])
+	plt.yticks([])
+	thisplot = plt.bar(range(10), predictions_array, color="#888888")
+	plt.ylim([0,1])
+	predicted_label = np.argmax(predictions_array)
+
+	thisplot[predicted_label].set_color('red')
+	thisplot[true_label].set_color('blue')
+
+numrows=5
+numcols=3
+numimages = numrows*numcols
+
+plt.figure(figsize=(2*2*numcols, 2*numrows))
+for i in range(numimages):
+	plt.subplot(numrows, 2*numcols, 2*i+1)
+	plot_image(i, predictions, test_labels, test_images)
+	plt.subplot(numrows, 2*numcols, 2*i+2)
+	plot_value_array(i, predictions, test_labels)
+
+plt.show()
