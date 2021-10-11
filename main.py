@@ -68,7 +68,7 @@ prediccion = model.predict(number)
 print("Predicción: " + class_names[np.argmax(prediccion[0])])
 
 #Visor de la imagen a evaluar
-plt.figure(figsize=(2*2*1, 2*1))
+plt.figure(figsize=(4, 4))
 plt.grid(False)
 plt.xticks([])
 plt.yticks([])
